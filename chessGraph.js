@@ -90,6 +90,51 @@ export default class chessGraph {
     return [node].concat(currentNewPath);
   }
 
+  #fastSearch(node, wantedNode, traveled, currentPath = [], shortest = null) {
+    if (node === wantedNode) {
+      return [node];
+    }
+    if (traveled.get(node.data)) {
+      if (typeof traveled.get(node.data) === "object") {
+        return traveled.get(node.data);
+      }
+      return null;
+    }
+    traveled.set(node.data, true);
+    const currentPathClone = [...currentPath];
+    currentPathClone.push(node);
+    if (shortest != null) {
+      if (currentPathClone.length > shortest.length) {
+        return null;
+      }
+    }
+    let shortesthPath = shortest;
+    let currentNewPath = null;
+    node.getLinks().forEach((link) => {
+      const path = this.#depthFirstSearch(
+        link,
+        wantedNode,
+        traveled,
+        currentPathClone,
+        shortesthPath
+      );
+      if (currentNewPath === null) {
+        currentNewPath = path;
+        if (path != null) {
+          shortesthPath = currentPathClone.concat(path);
+        }
+      } else if (path != null && currentNewPath.length >= path.length) {
+        currentNewPath = path;
+        shortesthPath = currentPathClone.concat(path);
+      }
+    });
+    if (currentNewPath === null) {
+      return null;
+    }
+    traveled.set(node.data, [node].concat(currentNewPath));
+    return [node].concat(currentNewPath);
+  }
+
   printMap() {
     this.boardMap.forEach((node) => {
       console.log(node);
@@ -98,6 +143,24 @@ export default class chessGraph {
 
   knightMoves(initial, final) {
     const path = this.#depthFirstSearch(
+      this.boardMap.get(initial),
+      this.boardMap.get(final),
+      new Map()
+    );
+    let string = "[";
+    path.forEach((node, index) => {
+      if (index === 0) {
+        string = `${string}${node.data}`;
+      } else {
+        string = `${string}, ${node.data}`;
+      }
+    });
+    string = `${string}]`;
+    return string;
+  }
+
+  fastKnightMoves(initial, final) {
+    const path = this.#fastSearch(
       this.boardMap.get(initial),
       this.boardMap.get(final),
       new Map()
