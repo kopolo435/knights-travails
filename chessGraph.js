@@ -141,22 +141,20 @@ export default class chessGraph {
     });
   }
 
+  #printSteps(path) {
+    console.log(`You made it in ${path.length - 1} moves! Here's your path:`);
+    path.forEach((node) => {
+      console.log(node.data);
+    });
+  }
+
   knightMoves(initial, final) {
     const path = this.#depthFirstSearch(
       this.boardMap.get(initial),
       this.boardMap.get(final),
       new Map()
     );
-    let string = "[";
-    path.forEach((node, index) => {
-      if (index === 0) {
-        string = `${string}${node.data}`;
-      } else {
-        string = `${string}, ${node.data}`;
-      }
-    });
-    string = `${string}]`;
-    return string;
+    this.#printSteps(path);
   }
 
   fastKnightMoves(initial, final) {
@@ -165,15 +163,6 @@ export default class chessGraph {
       this.boardMap.get(final),
       new Map()
     );
-    let string = "[";
-    path.forEach((node, index) => {
-      if (index === 0) {
-        string = `${string}${node.data}`;
-      } else {
-        string = `${string}, ${node.data}`;
-      }
-    });
-    string = `${string}]`;
-    return string;
+    this.#printSteps(path);
   }
 }
